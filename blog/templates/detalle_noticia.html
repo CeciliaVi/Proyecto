@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <style>
+        /* Estilo para los comentarios */
+        .comentarios {
+            margin-top: 30px;
+            margin-left: 65px;
+            text-align: left;
+        }
+
+        /* Estilo para los derechos de autor */
+        .derechos-autor {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        /* Estilo para el enlace "Acerca de" */
+        .acerca-de-link {
+            text-align: left;
+            margin-left: 65px;
+        }
+
+        /* Estilo para la información personalizada */
+        .info-personalizada {
+            display: none;
+            margin-top: 10px;
+            margin-left: 65px;
+            color: black;
+            font-weight: bold;
+        }
+    </style>
+
+    <div class="contenido-noticia">
+        <h2>{{ noticia.titulo }}</h2>
+        <div>
+            {% for categoria in noticia.categorias.all %}
+                <a href="{% url 'posts:categoria' categoria.pk %}">{{ categoria.nombre }}</a>
+            {% endfor %}
+        </div>
+        {% if noticia.autor %}
+            <p>{{ noticia.fecha_publicacion|date:"d F Y" }} por {{ noticia.autor }}</p>
+        {% else %}
+            <p>{{ noticia.fecha_publicacion|date:"d F Y" }}</p>
+        {% endif %}
+        {% if noticia.etiquetas.exists %}
+            <p style="font-size: 14px; color: black;">Etiquetas: {{ noticia.etiquetas.all|join:", " }}</p>
+        {% endif %}
+        <p>{{ noticia.contenido }}</p>
+        <a href="{% url 'posts:index' %}" class="boton-azul">Volver al Inicio</a>
+    </div>
+
+    <!-- Sección de comentarios -->
+    <div id="comentarios" class="comentarios">
+        <h3>Comentarios</h3>
+        {% for comentario in noticia.comentarios.all %}
+            <div class="comentario">
+                <p>{{ comentario.nombre }} dijo:</p>
+                <p>{{ comentario.contenido }}</p>
+                <p>Fecha y hora del comentario: {{ comentario.fecha_creacion|date:"d M Y H:i" }}</p>
+            </div>
+        {% empty %}
+            <p>No hay comentarios aún.</p>
+        {% endfor %}
+        <!-- Formulario para agregar nuevos comentarios -->
+        <form action="{% url 'posts:agregar_comentario' noticia.id %}" method="post">
+            {% csrf_token %}
+            <hr style="border: 1px solid #ccc; margin-top: 20px; margin-bottom: 10px;">
+
+            <select name="nombre">
+                <option value="Nombre" {% if user.is_authenticated %}selected{% endif %}>Nombre</option>
+                <option value="Anónimo" {% if not user.is_authenticated %}selected{% endif %}>Anónimo</option>
+            </select>
+
+            <textarea name="contenido" onclick="esconderPlaceholder()" placeholder="Escribe tu comentario aquí"></textarea>
+            <button type="submit" class="boton-azul">Publicar</button>
+        </form>
+    </div>
+
+    <!-- Enlace "Acerca de" -->
+    <div class="acerca-de-link">
+        <p><strong><a href="#" id="acerca-de">Acerca de</a></strong></p>
+    </div>
+
+    <!-- Información personalizada "Acerca de" -->
+    <div class="info-personalizada" id="informacion-personalizada">
+        <p style="color: black; font-weight: bold;">Somos el grupo Arroz con Pollo de la comisión 3 del info 2023.</p>
+    </div>
+
+    <!-- Pie de página con derechos de autor -->
+    <div class="derechos-autor">
+        <p>Arroz con Pollo todos los derechos reservados ©</p>
+    </div>
+
+    <script>
+        // Script para mostrar/ocultar la información personalizada
+        document.getElementById('acerca-de').addEventListener('click', function(e) {
+            e.preventDefault(); // Evitar que el enlace lleve al inicio
+            var infoPersonalizada = document.getElementById('informacion-personalizada');
+            if (infoPersonalizada.style.display === 'none') {
+                infoPersonalizada.style.display = 'block';
+            } else {
+                infoPersonalizada.style.display = 'none';
+            }
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    {% with show_welcome_message=True %}
+    <h1>¡Bienvenidos a RoboTecno!</h1>
+    <p>Un blog dedicado al fascinante mundo de la robótica.</p>
+    {% endwith %}
+
+    <div class="noticias">
+        {% for noticia in noticias %}
+        {% if noticia.pk %}
+        <div class="noticia">
+            <h3>{{ noticia.titulo }}</h3>
+            <p>{{ noticia.contenido | truncatewords:50 }}</p>
+            {% if request.resolver_match.view_name == 'posts:detalle_noticia' %}
+                {% if noticia.imagen %}
+                    <img src="{{ noticia.imagen.url }}" alt="Imagen de la noticia">
+                {% else %}
+                    <p>Imagen no disponible</p>
+                {% endif %}
+            {% endif %}
+            <a href="{% url 'posts:detalle_noticia' noticia.pk %}">Leer más</a>
+            <!-- Modifica el enlace "Comentar" para enlazar directamente a la sección de comentarios -->
+            <a href="{% url 'posts:detalle_noticia' noticia.pk %}#comentarios">Comentar</a>
+        </div>
+        {% endif %}
+        {% endfor %}
+
+        <!-- Agregar paginación -->
+        <div class="paginacion">
+            {% if noticias.has_previous %}
+                <a href="?pagina=1">Inicio</a>
+                <a href="?pagina={{ noticias.previous_page_number }}">Anterior</a>
+            {% endif %}
+            <span class="current-page">Página {{ noticias.number }} de {{ noticias.paginator.num_pages }}.</span>
+            {% if noticias.has_next %}
+                <a href="?pagina={{ noticias.next_page_number }}">Siguiente</a>
+                <a href="?pagina={{ noticias.paginator.num_pages }}">Última</a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block header %}
+    <div class="col-sm text-end">
+        <a class="btn btn-primary" href="{% url 'posts:login' %}">Iniciar Sesión</a>
+        <a class="btn btn-secondary" href="{% url 'posts:registro' %}">Registro de Usuario</a>
+    </div>
+{% endblock %}

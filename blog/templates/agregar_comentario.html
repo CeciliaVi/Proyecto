@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <h2>Agregar Comentario</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="boton-azul">Publicar</button>
+    </form>
+    <a href="{% url 'posts:detalle_noticia' noticia.id %}" class="boton-azul">Volver al Detalle</a>
+{% endblock %}
